@@ -1,0 +1,19 @@
+# Arquivos do Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Pastas de IDE e Editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# XAMPP / Servidor Local
+# Não ignore os arquivos PHP em si, mas se houvesse pastas temporárias do XAMPP:
+# tmp/
+
+# Outros
+*.log

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FocoVest — Organize suas revisões para o vestibular. Gerencie assuntos, acompanhe seu progresso e nunca perca uma revisão.">
+  <title>FocoVest — Organize suas revisões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#1a1a2e" stroke-width="2"/>
+            <path d="M8 12l3 3 5-5" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name">FocoVest</span>
+          <span class="logo-counter" id="logoCounter">0/0 revisados</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-novo-assunto" id="btnNovoAssunto" onclick="showNewForm()">
+      + Novo Assunto
+    </button>
+  </header>
+  <main class="page" id="pageList">
+    <h1 class="page-title">Meus assuntos</h1>
+    <p class="page-subtitle" id="listSubtitle">0 assuntos cadastrados — bora revisar?</p>
+
+    <div class="search-bar">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar por título ou disciplina..." oninput="filterSubjects()">
+    </div>
+
+    <div class="cards-grid" id="cardsGrid">
+  </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <line x1="8" y1="7" x2="16" y2="7"/>
+          <line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </div>
+      <p>Nada por aqui ainda — comece adicionando um assunto.</p>
+    </div>
+  </main>
+  <main class="page" id="pageDetail" style="display:none;">
+    <a class="back-link" href="#" onclick="showList(); return false;">← Voltar para a lista</a>
+
+    <div class="detail-card" id="detailCard">
+      <div class="detail-header">
+        <div class="detail-badges">
+          <span class="badge-discipline" id="detailDiscipline"></span>
+          <span class="badge-status" id="detailStatus"></span>
+        </div>
+        <div class="detail-actions">
+          <button class="btn-edit-detail" id="btnEditDetail" onclick="editCurrentSubject()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            Editar
+          </button>
+          <button class="btn-review" id="btnReview" onclick="toggleReview()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <span id="btnReviewText">Marcar como revisado</span>
+          </button>
+        </div>
+      </div>
+
+      <h1 class="detail-title" id="detailTitle"></h1>
+      <p class="detail-date" id="detailDate"></p>
+
+      <div class="detail-notes-section">
+        <label class="form-label">NOTAS / RESUMO</label>
+        <div class="detail-notes" id="detailNotes"></div>
+      </div>
+    </div>
+  </main>
+  <main class="page" id="pageForm" style="display:none;">
+    <a class="back-link" href="#" onclick="cancelForm(); return false;">← Voltar</a>
+    <h1 class="page-title" id="formTitle">Novo assunto</h1>
+
+    <div class="form-card">
+      <form id="subjectForm" onsubmit="saveSubject(event)">
+        <input type="hidden" id="editId" value="">
+
+        <div class="form-group">
+          <label class="form-label" for="inputTitle">TÍTULO *</label>
+          <input type="text" class="form-input" id="inputTitle" placeholder="Ex.: Equações de 2º grau" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group form-group-half">
+            <label class="form-label" for="inputDiscipline">DISCIPLINA *</label>
+            <select class="form-select" id="inputDiscipline" required>
+              <option value="">Selecione</option>
+              <option value="Matemática">Matemática</option>
+              <option value="Português">Português</option>
+              <option value="História">História</option>
+              <option value="Geografia">Geografia</option>
+              <option value="Biologia">Biologia</option>
+              <option value="Física">Física</option>
+              <option value="Química">Química</option>
+              <option value="Inglês">Inglês</option>
+              <option value="Literatura">Literatura</option>
+              <option value="Filosofia">Filosofia</option>
+              <option value="Sociologia">Sociologia</option>
+              <option value="Redação">Redação</option>
+            </select>
+          </div>
+          <div class="form-group form-group-half">
+            <label class="form-label" for="inputDate">DATA DO ESTUDO *</label>
+            <input type="date" class="form-input" id="inputDate" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputStatus">STATUS</label>
+          <select class="form-select" id="inputStatus">
+            <option value="Pendente">Pendente</option>
+            <option value="Revisado">Revisado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputNotes">NOTAS / RESUMO</label>
+          <textarea class="form-textarea" id="inputNotes" placeholder="Anote os pontos principais para revisar depois..." rows="5"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" onclick="cancelForm()">Cancelar</button>
+          <button type="submit" class="btn-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <div class="toast" id="toast"></div>
+  <div class="modal-overlay" id="deleteModal" style="display:none;">
+    <div class="modal">
+      <div class="modal-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          <line x1="10" y1="11" x2="10" y2="17"/>
+          <line x1="14" y1="11" x2="14" y2="17"/>
+        </svg>
+      </div>
+      <h3>Excluir assunto?</h3>
+      <p>Essa ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn-delete-confirm" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
