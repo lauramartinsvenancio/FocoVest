@@ -1,8 +1,8 @@
-# FocoVest 🎯
+# FocoVest 
 
 FocoVest é uma aplicação web (SPA) focada em ajudar estudantes a organizar suas revisões para o vestibular. Permite gerenciar os assuntos estudados, filtrar por disciplinas, acompanhar o progresso de revisão e manter o foco nos estudos.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 Este projeto foi construído utilizando tecnologias web puras, garantindo alta performance e facilidade de manutenção:
 
@@ -11,7 +11,7 @@ Este projeto foi construído utilizando tecnologias web puras, garantindo alta p
 *   **Banco de Dados:** MySQL (via PDO)
 *   **Design:** UI/UX moderna, com sistema de cores dinâmico por disciplina e ícones SVG.
 
-## 📋 Funcionalidades
+## Funcionalidades
 
 *   **Gestão de Assuntos:** Adicionar, editar e excluir assuntos estudados.
 *   **Categorização por Disciplinas:** Identificação visual rápida de disciplinas (Matemática, História, Biologia, etc.) com paletas de cores únicas.
@@ -19,7 +19,7 @@ Este projeto foi construído utilizando tecnologias web puras, garantindo alta p
 *   **Busca em Tempo Real:** Filtro rápido por título ou disciplina na página inicial.
 *   **Single Page Application (SPA):** Navegação fluida sem recarregamento da página.
 
-## 🛠️ Como executar o projeto localmente
+## Como executar o projeto localmente
 
 Para rodar este projeto na sua máquina, você precisará de um servidor web local com suporte a PHP e MySQL. Recomendamos o uso do **XAMPP**.
 
@@ -47,7 +47,7 @@ Para rodar este projeto na sua máquina, você precisará de um servidor web loc
    Pronto! Agora é só acessar a aplicação pelo seu navegador:
    *   `http://localhost/focovest/`
 
-## 📁 Estrutura de Arquivos
+## Estrutura de Arquivos
 
 *   `/api` — Arquivos do backend em PHP.
     *   `config.php` — Configurações de conexão PDO com o MySQL.
@@ -57,6 +57,3 @@ Para rodar este projeto na sua máquina, você precisará de um servidor web loc
 *   `index.html` — Estrutura principal da página (Single Page Application).
 *   `setup.php` — Script de inicialização e popularização do banco de dados.
 *   `styles.css` — Estilos visuais e design system.
-
----
-*Desenvolvido para ajudar futuros calouros a conquistarem a aprovação!* 🎓
