@@ -1,46 +1,32 @@
-const API = 'api/subjects.php';
-
+const STORAGE_KEY = 'focovest_subjects';
 let subjects = [];
 let currentDetailId = null;
 let deleteTargetId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   loadSubjects();
 });
-async function api(method, params = '', body = null) {
-  const url = params ? `${API}?${params}` : API;
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' }
-  };
-  if (body) opts.body = JSON.stringify(body);
 
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(err.error || 'Request failed');
+function loadSubjects() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (data) {
+    subjects = JSON.parse(data);
+  } else {
+    subjects = [
+      { id: 1, title: 'Funções quadráticas', discipline: 'Matemática', study_date: '2026-06-29', status: 'Pendente', notes: 'Revisar fórmula de Bhaskara e vértice da parábola.' },
+      { id: 2, title: 'Revolução Francesa', discipline: 'História', study_date: '2026-06-28', status: 'Revisado', notes: 'Causas, fases da revolução e consequências para a Europa.' },
+      { id: 3, title: 'Citologia: organelas', discipline: 'Biologia', study_date: '2026-06-30', status: 'Pendente', notes: 'Mitocôndria, complexo de Golgi, retículo endoplasmático e ribossomos.' }
+    ];
+    saveToStorage();
   }
-  return res.json();
-}
-async function loadSubjects() {
-  try {
-    subjects = await api('GET');
-    renderList();
-    updateCounter();
-  } catch (e) {
-    console.error('Failed to load subjects:', e);
-    showToast('Erro ao carregar assuntos.');
-  }
+  renderList();
+  updateCounter();
 }
 
-async function loadStats() {
-  try {
-    const stats = await api('GET', 'stats=1');
-    document.getElementById('logoCounter').textContent =
-      `${stats.reviewed}/${stats.total} revisados`;
-  } catch (e) {
-    console.error('Failed to load stats:', e);
-  }
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
 }
+
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
@@ -75,30 +61,18 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
-async function updateCounter() {
-  try {
-    const stats = await api('GET', 'stats=1');
-    document.getElementById('logoCounter').textContent =
-      `${stats.reviewed}/${stats.total} revisados`;
 
-    const total = stats.total;
-    document.getElementById('listSubtitle').textContent =
-      total === 0
-        ? '0 assuntos cadastrados \u2014 bora revisar?'
-        : `${total} assunto${total !== 1 ? 's' : ''} cadastrado${total !== 1 ? 's' : ''} \u2014 bora revisar?`;
-  } catch (e) {
-    console.error('Failed to update counter:', e);
-  }
+function updateCounter() {
+  const total = subjects.length;
+  const reviewed = subjects.filter(s => s.status === 'Revisado').length;
+  document.getElementById('logoCounter').textContent = `${reviewed}/${total} revisados`;
+  document.getElementById('listSubtitle').textContent = total === 0 ? '0 assuntos cadastrados — bora revisar?' : `${total} assunto${total !== 1 ? 's' : ''} cadastrado${total !== 1 ? 's' : ''} — bora revisar?`;
 }
+
 function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => {
-    p.style.display = 'none';
-  });
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
   const page = document.getElementById(pageId);
   page.style.display = 'block';
-  page.style.animation = 'none';
-  page.offsetHeight;
-  page.style.animation = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -106,20 +80,20 @@ function showList() {
   showPage('pageList');
   loadSubjects();
 }
+
 function renderList() {
   const grid = document.getElementById('cardsGrid');
   const empty = document.getElementById('emptyState');
-  let filtered = subjects;`n`n  if (filtered.length === 0) {
+  
+  let filtered = subjects;
+  
+  if (filtered.length === 0) {
     grid.innerHTML = '';
     empty.style.display = 'block';
-    if (subjects.length === 0) {
-      empty.querySelector('p').textContent = 'Nada por aqui ainda \u2014 comece adicionando um assunto.';
-    } else {
-      empty.querySelector('p').textContent = 'Nenhum resultado encontrado para sua busca.';
-    }
+    empty.querySelector('p').textContent = 'Nada por aqui ainda — comece adicionando um assunto.';
     return;
   }
-
+  
   empty.style.display = 'none';
   grid.innerHTML = filtered.map(s => `
     <div class="subject-card" onclick="showDetail(${s.id})" id="card-${s.id}">
@@ -148,59 +122,50 @@ function renderList() {
   `).join('');
 }
 
-async function showDetail(id) {
-  try {
-    const subject = await api('GET', `id=${id}`);
-    currentDetailId = id;
-
-    document.getElementById('detailDiscipline').textContent = subject.discipline;
-    document.getElementById('detailDiscipline').className =
-      `badge-discipline ${getDisciplineClass(subject.discipline)}`;
-    document.getElementById('detailCard').className =
-      `detail-card ${getBgClass(subject.discipline)}`;
-
-    const statusEl = document.getElementById('detailStatus');
-    statusEl.textContent = subject.status === 'Revisado' ? 'REVISADO' : 'PENDENTE';
-    statusEl.className = `badge-status ${subject.status === 'Revisado' ? 'reviewed' : 'pending'}`;
-
-    document.getElementById('detailTitle').textContent = subject.title;
-    document.getElementById('detailDate').textContent = formatDate(subject.study_date);
-    document.getElementById('detailNotes').textContent = subject.notes || 'Sem notas.';
-
-    const btnReview = document.getElementById('btnReview');
-    const btnReviewText = document.getElementById('btnReviewText');
-    if (subject.status === 'Revisado') {
-      btnReview.classList.add('reviewed');
-      btnReviewText.textContent = 'Revisado';
-    } else {
-      btnReview.classList.remove('reviewed');
-      btnReviewText.textContent = 'Marcar como revisado';
-    }
-
-    showPage('pageDetail');
-  } catch (e) {
-    console.error('Failed to load detail:', e);
-    showToast('Erro ao carregar detalhes.');
+function showDetail(id) {
+  const subject = subjects.find(s => s.id === id);
+  if (!subject) return;
+  
+  currentDetailId = id;
+  document.getElementById('detailDiscipline').textContent = subject.discipline;
+  document.getElementById('detailDiscipline').className = `badge-discipline ${getDisciplineClass(subject.discipline)}`;
+  document.getElementById('detailCard').className = `detail-card ${getBgClass(subject.discipline)}`;
+  
+  const statusEl = document.getElementById('detailStatus');
+  statusEl.textContent = subject.status === 'Revisado' ? 'REVISADO' : 'PENDENTE';
+  statusEl.className = `badge-status ${subject.status === 'Revisado' ? 'reviewed' : 'pending'}`;
+  
+  document.getElementById('detailTitle').textContent = subject.title;
+  document.getElementById('detailDate').textContent = formatDate(subject.study_date);
+  document.getElementById('detailNotes').textContent = subject.notes || 'Sem notas.';
+  
+  const btnReview = document.getElementById('btnReview');
+  const btnReviewText = document.getElementById('btnReviewText');
+  if (subject.status === 'Revisado') {
+    btnReview.classList.add('reviewed');
+    btnReviewText.textContent = 'Revisado';
+  } else {
+    btnReview.classList.remove('reviewed');
+    btnReviewText.textContent = 'Marcar como revisado';
   }
+  showPage('pageDetail');
 }
 
 function editCurrentSubject() {
   if (currentDetailId) editSubject(currentDetailId);
 }
 
-async function toggleReview() {
+function toggleReview() {
   if (!currentDetailId) return;
-  try {
-    const updated = await api('PATCH', `id=${currentDetailId}`);
-    showToast(updated.status === 'Revisado'
-      ? 'Assunto marcado como revisado!'
-      : 'Assunto marcado como pendente.');
+  const idx = subjects.findIndex(s => s.id === currentDetailId);
+  if (idx > -1) {
+    subjects[idx].status = subjects[idx].status === 'Revisado' ? 'Pendente' : 'Revisado';
+    saveToStorage();
+    showToast(subjects[idx].status === 'Revisado' ? 'Assunto marcado como revisado!' : 'Assunto marcado como pendente.');
     showDetail(currentDetailId);
-  } catch (e) {
-    console.error('Failed to toggle review:', e);
-    showToast('Erro ao atualizar status.');
   }
 }
+
 function showNewForm() {
   document.getElementById('editId').value = '';
   document.getElementById('formTitle').textContent = 'Novo assunto';
@@ -214,53 +179,47 @@ function showNewForm() {
   document.getElementById('inputTitle').focus();
 }
 
-async function editSubject(id) {
-  try {
-    const subject = await api('GET', `id=${id}`);
-
-    document.getElementById('editId').value = id;
-    document.getElementById('formTitle').textContent = 'Editar assunto';
-    document.getElementById('inputTitle').value = subject.title;
-    document.getElementById('inputDiscipline').value = subject.discipline;
-    document.getElementById('inputDate').value = subject.study_date;
-    document.getElementById('inputStatus').value = subject.status;
-    document.getElementById('inputNotes').value = subject.notes || '';
-    document.querySelector('.form-card').className = `form-card ${getBgClass(subject.discipline)}`;
-    showPage('pageForm');
-    document.getElementById('inputTitle').focus();
-  } catch (e) {
-    console.error('Failed to load subject for editing:', e);
-    showToast('Erro ao carregar assunto.');
-  }
+function editSubject(id) {
+  const subject = subjects.find(s => s.id === id);
+  if (!subject) return;
+  
+  document.getElementById('editId').value = id;
+  document.getElementById('formTitle').textContent = 'Editar assunto';
+  document.getElementById('inputTitle').value = subject.title;
+  document.getElementById('inputDiscipline').value = subject.discipline;
+  document.getElementById('inputDate').value = subject.study_date;
+  document.getElementById('inputStatus').value = subject.status;
+  document.getElementById('inputNotes').value = subject.notes || '';
+  document.querySelector('.form-card').className = `form-card ${getBgClass(subject.discipline)}`;
+  showPage('pageForm');
+  document.getElementById('inputTitle').focus();
 }
 
-async function saveSubject(event) {
+function saveSubject(event) {
   event.preventDefault();
-
   const id = document.getElementById('editId').value;
   const title = document.getElementById('inputTitle').value.trim();
   const discipline = document.getElementById('inputDiscipline').value;
   const study_date = document.getElementById('inputDate').value;
   const status = document.getElementById('inputStatus').value;
   const notes = document.getElementById('inputNotes').value.trim();
-
+  
   if (!title || !discipline || !study_date) return;
-
-  const payload = { title, discipline, study_date, status, notes };
-
-  try {
-    if (id) {
-      await api('PUT', `id=${id}`, payload);
-      showToast('Assunto atualizado com sucesso!');
-    } else {
-      await api('POST', '', payload);
-      showToast('Assunto adicionado com sucesso!');
+  
+  if (id) {
+    const idx = subjects.findIndex(s => s.id === parseInt(id));
+    if (idx > -1) {
+      subjects[idx] = { id: parseInt(id), title, discipline, study_date, status, notes };
     }
-    showList();
-  } catch (e) {
-    console.error('Failed to save subject:', e);
-    showToast('Erro ao salvar assunto.');
+    showToast('Assunto atualizado com sucesso!');
+  } else {
+    const newId = subjects.length > 0 ? Math.max(...subjects.map(s => s.id)) + 1 : 1;
+    subjects.push({ id: newId, title, discipline, study_date, status, notes });
+    showToast('Assunto adicionado com sucesso!');
   }
+  
+  saveToStorage();
+  showList();
 }
 
 function cancelForm() {
@@ -271,6 +230,7 @@ function cancelForm() {
     showList();
   }
 }
+
 function openDeleteModal(id) {
   deleteTargetId = id;
   document.getElementById('deleteModal').style.display = 'flex';
@@ -281,23 +241,18 @@ function closeDeleteModal() {
   document.getElementById('deleteModal').style.display = 'none';
 }
 
-async function confirmDelete() {
+function confirmDelete() {
   if (!deleteTargetId) return;
-  try {
-    await api('DELETE', `id=${deleteTargetId}`);
-    closeDeleteModal();
-    showList();
-    showToast('Assunto excluido.');
-  } catch (e) {
-    console.error('Failed to delete subject:', e);
-    showToast('Erro ao excluir assunto.');
-  }
+  subjects = subjects.filter(s => s.id !== deleteTargetId);
+  saveToStorage();
+  closeDeleteModal();
+  showList();
+  showToast('Assunto excluido.');
 }
+
 function showToast(message) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2800);
 }
-
-
