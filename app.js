@@ -109,17 +109,7 @@ function showList() {
 function renderList() {
   const grid = document.getElementById('cardsGrid');
   const empty = document.getElementById('emptyState');
-  const query = document.getElementById('searchInput').value.toLowerCase().trim();
-
-  let filtered = subjects;
-  if (query) {
-    filtered = subjects.filter(s =>
-      s.title.toLowerCase().includes(query) ||
-      s.discipline.toLowerCase().includes(query)
-    );
-  }
-
-  if (filtered.length === 0) {
+  let filtered = subjects;`n`n  if (filtered.length === 0) {
     grid.innerHTML = '';
     empty.style.display = 'block';
     if (subjects.length === 0) {
@@ -158,9 +148,6 @@ function renderList() {
   `).join('');
 }
 
-function filterSubjects() {
-  renderList();
-}
 async function showDetail(id) {
   try {
     const subject = await api('GET', `id=${id}`);
@@ -312,4 +299,5 @@ function showToast(message) {
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2800);
 }
+
 
