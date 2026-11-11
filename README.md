@@ -19,6 +19,20 @@ Este projeto foi construído utilizando tecnologias web puras, garantindo alta p
 *   **Busca em Tempo Real:** Filtro rápido por título ou disciplina na página inicial.
 *   **Single Page Application (SPA):** Navegação fluida sem recarregamento da página.
 
+## Telas do Sistema
+
+### 1. Listagem Principal e Busca
+Visualização dos cards com cores dinâmicas por matéria, contador de revisões e barra de pesquisa por texto em tempo real.
+![Listagem Principal](screenshots/tela-listagem.png)
+
+### 2. Detalhes do Assunto
+Visualização dos detalhes do conteúdo estudado com status e botão de alternância de revisão.
+![Detalhes do Assunto](screenshots/tela-detalhes.png)
+
+### 3. Cadastro e Edição
+Formulário para adicionar ou atualizar assuntos, com validação de campos obrigatórios.
+![Formulário](screenshots/tela-formulario.png)
+
 ## Como executar o projeto localmente
 
 Para rodar este projeto na sua máquina, você precisará de um servidor web local com suporte a PHP e MySQL. Recomendamos o uso do **XAMPP**.
